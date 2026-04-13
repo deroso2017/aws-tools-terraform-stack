@@ -1,0 +1,21 @@
+# Terraform state
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+
+# Terraform directories
+.terraform/
+
+# Variable files that may contain secrets
+*.tfvars
+*.tfvars.json
+
+# Output files
+*.out
+
+# SSH keys
+*.pem
+*.key
+
+venv/
+.venv/
