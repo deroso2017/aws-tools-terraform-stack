@@ -18,7 +18,7 @@ resource "aws_instance" "bastion-host" {
   instance_type               = var.instance_type
   associate_public_ip_address = true
   key_name                    = var.key_pair
-  subnet_id                   = aws_subnet.public
+  subnet_id                   = aws_subnet.public.id
   vpc_security_group_ids      = [aws_security_group.app.id]
   depends_on                  = [aws_vpc.main, aws_subnet.public, aws_security_group.app]
   user_data_replace_on_change = true
