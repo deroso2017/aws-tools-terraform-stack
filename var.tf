@@ -53,9 +53,9 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
-variable "key_name" {
-  type    = string
-  default = "vockey"
+variable "key_pair" {
+  description = "The name of the key pair to use for the EC2 instance"
+  type        = string
 }
 
 variable "instance_profile" {
@@ -86,12 +86,6 @@ variable "db_password" {
 variable "db_instance_class" {
   type    = string
   default = "db.t3.micro"
-}
-
-variable "key_pair" {
-  description = "The name of the key pair to use for the EC2 instance"
-  type        = string
-  default     = "vockey"
 }
 
 variable "cpu_target_value" {
