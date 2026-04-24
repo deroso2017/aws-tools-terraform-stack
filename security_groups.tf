@@ -22,9 +22,18 @@ resource "aws_security_group" "alb" {
 
 resource "aws_security_group" "app" {
   name        = "aws-tools-app-sgp"
-  description = "Allow HTTP from ALB and SSH from my IP"
+  description = "Allow traffic from ALB and SSH from my IP"
   vpc_id      = aws_vpc.main.id
 
+  # Streamlit app (Docker)
+  ingress {
+    from_port       = 8501
+    to_port         = 8501
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  # Apache (for /ip.php)
   ingress {
     from_port       = 80
     to_port         = 80
@@ -32,6 +41,7 @@ resource "aws_security_group" "app" {
     security_groups = [aws_security_group.alb.id]
   }
 
+  # SSH access
   ingress {
     from_port   = 22
     to_port     = 22
@@ -46,7 +56,9 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "aws-tools-app-sgp" }
+  tags = {
+    Name = "aws-tools-app-sgp"
+  }
 }
 
 resource "aws_security_group" "rds" {
@@ -70,3 +82,4 @@ resource "aws_security_group" "rds" {
 
   tags = { Name = "${var.db_identifier}-sg" }
 }
+

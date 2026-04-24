@@ -2,9 +2,9 @@
 set -e
 
 dnf update -y
-dnf install -y httpd php php-mysqlnd php-fpm php-json php-mbstring php-xml php-gd docker stress-ng
+dnf install -y httpd php php-cli php-fpm docker stress-ng
 
-systemctl enable --now docker httpd
+systemctl enable --now docker httpd php-fpm
 
 cat <<EOF > /home/ec2-user/.env
 SUPABASE_URL=${supabase_url}
@@ -12,7 +12,9 @@ SUPABASE_ANON_KEY=${supabase_amon_key}
 RDS_CONN_STRING=postgresql+psycopg2://${db_username}:${db_password}@${rds_endpoint}/${db_name}
 EOF
 
-docker run -d -p 80:8501 --env-file /home/ec2-user/.env --name aws-tools-app shaahin1359/aws-tools-app:v1.0.2
+chown ec2-user:ec2-user /home/ec2-user/.env
+
+docker run -d -p 8501:8501 --env-file /home/ec2-user/.env --name aws-tools-app shaahin1359/aws-tools-app:v1.0.2
 
 # Create IP info page showing instance details from metadata
 cat << 'EOF' | tee /var/www/html/ip.php
@@ -27,7 +29,4 @@ echo "<h2>Availability Zone: $az</h2>";
 ?>
 EOF
 
-stress-ng --cpu 0 --cpu-load 80 --timeout 5m
-
-# Restart Apache
-sudo systemctl restart httpd
+stress-ng --cpu 2 --cpu-load 95 --timeout 15m
