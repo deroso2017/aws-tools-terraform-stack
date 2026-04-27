@@ -9,6 +9,7 @@ systemctl enable --now docker httpd php-fpm
 cat <<EOF > /home/ec2-user/.env
 SUPABASE_URL=${supabase_url}
 SUPABASE_ANON_KEY=${supabase_amon_key}
+AWS_SESSION_KEY=${aws_session_key}
 RDS_CONN_STRING=postgresql+psycopg2://${db_username}:${db_password}@${rds_endpoint}/${db_name}
 EOF
 
