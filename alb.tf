@@ -25,6 +25,12 @@ resource "aws_lb_target_group" "app" {
     unhealthy_threshold = 2
     interval            = 30
   }
+
+  # Sticky Sessions to solve AxiosError
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400
+  }
 }
 
 # ----------------------------
