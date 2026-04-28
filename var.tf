@@ -103,3 +103,8 @@ variable "supabase_amon_key" {
   type      = string
   sensitive = true
 }
+
+variable "aws_session_key" {
+  type      = string
+  sensitive = true
+}

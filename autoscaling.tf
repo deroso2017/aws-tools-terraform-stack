@@ -16,7 +16,7 @@ resource "aws_launch_template" "app-lt" {
     db_password       = var.db_password
     supabase_url      = var.supabase_url
     supabase_amon_key = var.supabase_amon_key
-
+    aws_session_key   = var.aws_session_key
   }))
 
   tag_specifications {
@@ -33,7 +33,10 @@ resource "aws_autoscaling_group" "app-asg" {
   max_size            = 4
   desired_capacity    = 1
   vpc_zone_identifier = [aws_subnet.public.id, aws_subnet.public_2.id]
-  target_group_arns   = [aws_lb_target_group.app.arn]
+  target_group_arns = [
+    aws_lb_target_group.app.arn,
+    aws_lb_target_group.apache.arn
+  ]
 
   launch_template {
     id      = aws_launch_template.app-lt.id
