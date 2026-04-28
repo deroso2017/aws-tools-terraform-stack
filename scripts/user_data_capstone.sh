@@ -15,7 +15,7 @@ EOF
 
 chown ec2-user:ec2-user /home/ec2-user/.env
 
-docker run -d -p 8501:8501 --env-file /home/ec2-user/.env --name aws-tools-app shaahin1359/aws-tools-app:v1.0.4
+docker run -d -p 8501:8501 --env-file /home/ec2-user/.env --name aws-tools-app shaahin1359/aws-tools-app:v1.0.3
 
 # Create IP info page showing instance details from metadata
 cat << 'EOF' | tee /var/www/html/ip.php
