@@ -21,7 +21,7 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_security_group" "app" {
-  name        = "wordpress-sgp"
+  name        = "aws-tools-app-sgp"
   description = "Allow HTTP from ALB and SSH from my IP"
   vpc_id      = aws_vpc.main.id
 
@@ -46,7 +46,7 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "wordpress-sgp" }
+  tags = { Name = "aws-tools-app-sgp" }
 }
 
 resource "aws_security_group" "rds" {

@@ -74,8 +74,8 @@ variable "db_name" {
 }
 
 variable "db_username" {
-  type    = string
-  default = "adminuser"
+  type      = string
+  sensitive = true
 }
 
 variable "db_password" {
@@ -100,6 +100,11 @@ variable "supabase_url" {
 }
 
 variable "supabase_amon_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "aws_session_key" {
   type      = string
   sensitive = true
 }

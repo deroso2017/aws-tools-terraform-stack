@@ -1,89 +1,226 @@
-# AWS Tools Terraform Stack
+<div align="center">
 
-## Overview
-This repository contains Terraform configurations to deploy a robust and secure AWS infrastructure stack. It incorporates critical components such as Application Load Balancer (ALB), Auto Scaling groups, Amazon RDS, Virtual Private Cloud (VPC), and security groups. The goal is to provide a standardized way to set up and manage AWS resources using Terraform.
+# 🏗️ AWS Tools Terraform Stack
 
-## Architecture
-The architecture of the deployed infrastructure consists of:
-- **VPC**: A logically isolated section of the AWS cloud where resources are launched.
-- **Subnets**: Public and private subnets designed for hosting EC2 instances and RDS databases.
-- **Application Load Balancer (ALB)**: Distributes incoming application traffic across multiple targets, such as EC2 instances.
-- **Auto Scaling Group**: Automatically adjusts the number of EC2 instances in response to demand.
-- **Amazon RDS**: A managed relational database service that handles routine database tasks.
+[![Terraform](https://img.shields.io/badge/Terraform-≥1.x-7B42BC?logo=terraform&logoColor=white)](https://developer.hashicorp.com/terraform)
+[![AWS](https://img.shields.io/badge/AWS-us--west--2-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com)
+[![Docker](https://img.shields.io/badge/Docker-shaahin1359%2Faws--tools--app-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/shaahin1359/aws-tools-app)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
 
-## Prerequisites
-Before deploying the stack, ensure you have the following prerequisites:
-- An AWS account.
-- Terraform installed on your local machine. (Version 1.0 or above)
-- AWS CLI installed and configured with your credentials.
+Production-ready, auto-scaling AWS infrastructure for the **aws-tools-app** — provisioned entirely with Terraform.
 
-## Quick Start Guide
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/deroso2017/aws-tools-terraform-stack.git
-   cd aws-tools-terraform-stack
-   ```
-2. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
-3. Review the configurations (optional):
-   ```bash
-   terraform plan
-   ```
-4. Deploy the stack:
-   ```bash
-   terraform apply
-   ```
-5. Confirm the apply action when prompted.
-
-## Configuration
-The following configuration files are critical:
-- **`variables.tf`**: Defines the input variables used in the Terraform setup.
-- **`outputs.tf`**: Specifies the outputs of the stack that will help in understanding the created resources.
-- **`main.tf`**: Contains the primary configurations and resource definitions for the infrastructure.
-
-## File Structure
-```
-aws-tools-terraform-stack/
-├── main.tf          # Main configuration file
-├── variables.tf     # Input variables
-├── outputs.tf       # Output values
-├── README.md        # Documentation
-└── .gitignore       # Git ignore file
-``` 
-
-## Deployment Steps
-1. Ensure you have completed the Prerequisites.
-2. Modify any variable values in `variables.tf` as necessary for your use case.
-3. Run `terraform init` to initialize the Terraform configuration.
-4. Execute `terraform plan` to preview changes Terraform will make.
-5. Deploy your infrastructure with `terraform apply`.
-6. Monitor the deployment process and check the outputs for any necessary information.
-
-## Outputs
-After a successful deployment, the following outputs are available:
-- ALB DNS Name
-- RDS Endpoint
-- VPC ID
-- Security Group IDs
-
-These outputs provide essential information for connecting to your AWS resources.
-
-## Cleanup
-To destroy all the resources created by this Terraform stack, run:
-```bash
-tf destroy
-```
-Confirm the action to remove all resources from your AWS account.
-
-## Troubleshooting
-- If you encounter any issues, check the Terraform logs for errors.
-- Ensure your AWS account has the necessary permissions to create the specified resources.
-- Validate that there are no existing resources with conflicting configurations.
-
-## Contributing Guidelines
-Contributions are welcome! If you would like to contribute to this repository, please fork the repo and create a pull request with the proposed changes. Ensure that your changes are well-documented and tested.
+</div>
 
 ---
-This README provides guidelines for deploying AWS infrastructure using Terraform, facilitating ease of use and understanding for users and contributors alike.
+
+## 🗺️ Architecture
+
+```
+                        ┌─────────────────────────────────────────────┐
+                        │                   AWS VPC                    │
+                        │            192.168.0.0/26                    │
+                        │                                              │
+          Internet      │  ┌──────────────────────────────────────┐   │
+             │          │  │           PUBLIC SUBNETS              │   │
+             ▼          │  │  us-west-2a (.0/28)  us-west-2b (.16/28) │
+    ┌─────────────────┐ │  │                                      │   │
+    │  🌐 Internet    │ │  │  ┌──────────────────────────────┐    │   │
+    │    Gateway      │─┼──┼─▶│   ⚖️  Application Load       │    │   │
+    └─────────────────┘ │  │  │      Balancer (HTTP:80)      │    │   │
+                        │  │  └──────────────┬───────────────┘    │   │
+                        │  │                 │                     │   │
+                        │  │  ┌──────────────▼───────────────┐    │   │
+                        │  │  │  🖥️  Auto Scaling Group       │    │   │
+                        │  │  │  EC2 t3.small (min:1 max:4)  │    │   │
+                        │  │  │  Amazon Linux 2023 + Docker  │    │   │
+                        │  │  │  🐳 aws-tools-app:v1.0.5     │    │   │
+                        │  │  └──────────────────────────────┘    │   │
+                        │  │                                      │   │
+                        │  │  ┌──────────────────────────────┐    │   │
+                        │  │  │  🔑 Bastion Host (t3.micro)  │    │   │
+                        │  │  │  SSH restricted to deployer  │    │   │
+                        │  │  └──────────────────────────────┘    │   │
+                        │  └──────────────────────────────────────┘   │
+                        │                                              │
+                        │  ┌──────────────────────────────────────┐   │
+                        │  │           PRIVATE SUBNETS             │   │
+                        │  │  us-west-2a (.32/28) us-west-2b (.48/28) │
+                        │  │                                      │   │
+                        │  │  ┌──────────────────────────────┐    │   │
+                        │  │  │  🗄️  RDS PostgreSQL 15        │    │   │
+                        │  │  │  db.t3.micro · 20GB gp2      │    │   │
+                        │  │  │  Encrypted · 7-day backups   │    │   │
+                        │  │  └──────────────────────────────┘    │   │
+                        │  └──────────────────────────────────────┘   │
+                        └─────────────────────────────────────────────┘
+```
+
+---
+
+## 🔒 Security Groups
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Security Group Flow                      │
+│                                                             │
+│  🌍 0.0.0.0/0 ──▶ [ALB SG] :80 ──▶ [App SG] :80           │
+│                                                             │
+│  🧑 Deployer IP ──────────────▶ [App SG] :22 (SSH)         │
+│                                                             │
+│  [App SG] ─────────────────────▶ [RDS SG] :5432            │
+│           (via VPC CIDR 192.168.0.0/26)                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📦 Resources Provisioned
+
+| Icon | Resource | Details |
+|------|----------|---------|
+| 🌐 | **VPC** | `192.168.0.0/26`, DNS hostnames enabled |
+| 🔀 | **Public Subnets** | `/28` each in `us-west-2a` and `us-west-2b` |
+| 🔒 | **Private Subnets** | `/28` each in `us-west-2a` and `us-west-2b` |
+| 🚪 | **Internet Gateway** | Routes public traffic |
+| ⚖️ | **ALB** | Internet-facing, HTTP:80, sticky sessions (1-day cookie) |
+| 📋 | **Launch Template** | Amazon Linux 2023, t3.small, Docker app on port 80 |
+| 📈 | **Auto Scaling Group** | Min 1 / Max 4, CPU target tracking at 60% |
+| 🔑 | **Bastion Host** | t3.micro, public IP, SSH locked to deployer IP |
+| 🗄️ | **RDS PostgreSQL 15** | db.t3.micro, 20 GB gp2, encrypted, 7-day backups |
+| 🛡️ | **Security Groups** | ALB, App, and RDS with least-privilege rules |
+
+---
+
+## ✅ Prerequisites
+
+- ![Terraform](https://img.shields.io/badge/-Terraform_≥_1.x-7B42BC?logo=terraform&logoColor=white&style=flat-square) installed
+- ![AWS CLI](https://img.shields.io/badge/-AWS_CLI-FF9900?logo=amazonaws&logoColor=white&style=flat-square) configured (`aws configure` or env vars)
+- An EC2 **key pair** created in `us-west-2`
+- Docker image `shaahin1359/aws-tools-app:v1.0.5` on DockerHub
+
+---
+
+## 🚀 Usage
+
+### 1. Clone
+
+```bash
+git clone <repo-url>
+cd aws-tools-terraform-stack
+```
+
+### 2. Create `terraform.tfvars`
+
+> ⚠️ This file is **git-ignored**. Never commit secrets.
+
+```hcl
+region        = "us-west-2"
+key_pair      = "your-key-pair-name"
+db_password   = "YourSecurePassword!"
+
+supabase_url      = "https://<your-project>.supabase.co"
+supabase_amon_key = "<your-supabase-anon-key>"
+aws_session_key   = "<your-session-key>"
+```
+
+### 3. Deploy
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+### 4. Access the App
+
+```
+http://<alb_dns>
+```
+
+### 5. Destroy
+
+```bash
+terraform destroy
+```
+
+---
+
+## 📤 Outputs
+
+| Output | Description |
+|--------|-------------|
+| `alb_dns` | Public DNS of the Application Load Balancer |
+| `vpc_id` | VPC ID |
+| `rds_endpoint` | RDS instance endpoint |
+| `asg_name` | Auto Scaling Group name |
+| `launch_template_id` | Launch Template ID |
+| `rds_connection_string` | Full PostgreSQL connection string *(sensitive)* |
+
+---
+
+## ⚙️ Variables Reference
+
+| Variable | Default | Required | Description |
+|----------|---------|----------|-------------|
+| `region` | `us-west-2` | | AWS region |
+| `vpc_cidr` | `192.168.0.0/26` | | VPC CIDR block |
+| `instance_type` | `t3.micro` | | Bastion host instance type |
+| `key_pair` | — | ✅ | EC2 key pair name |
+| `db_identifier` | `orders-postgres` | | RDS instance identifier |
+| `db_name` | `awstoolsappdb` | | Database name |
+| `db_username` | — | ✅ 🔐 | Database master username |
+| `db_password` | — | ✅ 🔐 | Database password |
+| `db_instance_class` | `db.t3.micro` | | RDS instance class |
+| `cpu_target_value` | `60.0` | | ASG target CPU utilization (%) |
+| `supabase_url` | — | ✅ 🔐 | Supabase project URL |
+| `supabase_amon_key` | — | ✅ 🔐 | Supabase anon key |
+| `aws_session_key` | — | ✅ 🔐 | App AWS session key |
+
+> 🔐 = marked `sensitive = true` in Terraform
+
+---
+
+## 📁 Project Structure
+
+```
+aws-tools-terraform-stack/
+│
+├── 🔧 provider.tf           # AWS & HTTP provider config, AMI data sources
+├── 📝 var.tf                # Variable declarations
+├── 🔒 terraform.tfvars      # Variable values (git-ignored)
+│
+├── 🌐 vpc.tf                # VPC, subnets, IGW, route tables
+├── 🛡️  security_groups.tf   # Security groups for ALB, app, and RDS
+├── 🖥️  ec2.tf               # Bastion host
+├── ⚖️  alb.tf               # Application Load Balancer, target group, listener
+├── 📈 autoscaling.tf        # Launch template, ASG, CPU scaling policy
+├── 🗄️  rds.tf               # RDS PostgreSQL instance and subnet group
+├── 📤 outputs.tf            # Stack outputs
+│
+└── 📂 scripts/
+    └── 🐚 user_data_capstone.sh  # EC2 bootstrap: installs Docker, writes .env, starts container
+```
+
+---
+
+## 🔐 Security Notes
+
+- **SSH access** is automatically restricted to the public IP of the machine running `terraform apply` (resolved via `checkip.amazonaws.com`).
+- **RDS** lives in private subnets with no public access — reachable only within the VPC CIDR.
+- **Sensitive variables** (`db_password`, `db_username`, `supabase_amon_key`, `aws_session_key`) are marked `sensitive = true`.
+- **`*.tfvars`** and **`*.tfstate`** files are git-ignored to prevent secret leakage.
+
+---
+
+## 🛠️ Tech Stack
+
+<div align="center">
+
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
+![AWS](https://img.shields.io/badge/Amazon_AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Amazon EC2](https://img.shields.io/badge/Amazon_EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white)
+![Amazon RDS](https://img.shields.io/badge/Amazon_RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white)
+
+</div>

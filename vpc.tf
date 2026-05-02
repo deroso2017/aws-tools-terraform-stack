@@ -47,7 +47,7 @@ resource "aws_subnet" "private_2" {
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  tags = { Name = "wordpress-gtw" }
+  tags = { Name = "aws-tools-gtw" }
 }
 
 resource "aws_route_table" "public" {
@@ -58,7 +58,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.main.id
   }
 
-  tags = { Name = "public-wordpress-rt" }
+  tags = { Name = "public-aws-tools-rt" }
 }
 
 resource "aws_route_table_association" "public" {

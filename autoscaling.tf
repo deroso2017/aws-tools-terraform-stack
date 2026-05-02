@@ -16,7 +16,7 @@ resource "aws_launch_template" "app-lt" {
     db_password       = var.db_password
     supabase_url      = var.supabase_url
     supabase_amon_key = var.supabase_amon_key
-
+    aws_session_key   = var.aws_session_key
   }))
 
   tag_specifications {
