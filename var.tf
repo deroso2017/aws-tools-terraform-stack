@@ -74,8 +74,8 @@ variable "db_name" {
 }
 
 variable "db_username" {
-  type    = string
-  default = "adminuser"
+  type      = string
+  sensitive = true
 }
 
 variable "db_password" {

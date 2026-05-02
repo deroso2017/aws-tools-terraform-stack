@@ -10,4 +10,4 @@ AWS_SESSION_KEY=${aws_session_key}
 RDS_CONN_STRING=postgresql+psycopg2://${db_username}:${db_password}@${rds_endpoint}/${db_name}
 EOF
 
-docker run -d -p 80:8501 --env-file /home/ec2-user/.env --name aws-tools-app shaahin1359/aws-tools-app:v1.0.5
+docker run -d -p 80:8501 --env-file /home/ec2-user/.env --name aws-tools-app shaahin1359/aws-tools-app:v1.0.7
